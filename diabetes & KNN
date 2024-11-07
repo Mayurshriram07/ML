@@ -1,0 +1,55 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+import seaborn as sns
+
+# Load the diabetes dataset
+data = pd.read_csv('/content/diabetes.csv')
+data.head()
+
+data.isnull().sum()
+
+data.dtypes
+
+# Separate features and target variable
+X = data.drop('Outcome', axis=1)  # Features
+y = data['Outcome']  # Target variable
+# Split the dataset into training and testing sets (80-20 split)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+# Initialize the KNN classifier with k=5 (for example)
+k = 5
+knn = KNeighborsClassifier(n_neighbors=k)
+# Train the KNN model
+knn.fit(X_train, y_train)
+
+# Predict on the test set
+y_pred = knn.predict(X_test)
+# Confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n", conf_matrix)
+
+sns.heatmap(conf_matrix,annot=True,cmap='coolwarm')
+
+# Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.4f}")
+
+# Error Rate
+error_rate = 1 - accuracy
+print(f"Error Rate: {error_rate:.4f}")
+
+# Precision
+precision = precision_score(y_test, y_pred)
+print(f"Precision: {precision:.4f}")
+
+# Recall
+recall = recall_score(y_test, y_pred)
+print(f"Recall: {recall:.4f}")
