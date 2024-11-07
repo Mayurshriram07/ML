@@ -1,0 +1,33 @@
+def function(x):
+    return (x + 3) ** 2
+def derivative(x):
+    return 2 * (x + 3)
+x = 2                   
+learning_rate = 0.1     
+precision = 0.0001      
+max_iterations = 1000   
+# Gradient Descent Algorithm
+for i in range(max_iterations):
+    # Calculate the gradient
+    grad = derivative(x)
+    # Update x using the gradient
+    x_new = x - learning_rate * grad
+    # Check for convergence
+    if abs(x_new - x) < precision:
+        print(f"Converged at iteration {i}")
+        break
+    # Update x
+    x = x_new
+# Print the result
+print(f"Local minimum occurs at x = {x}")
+print(f"Function value at local minimum: y = {function(x)}")
+
+import matplotlib as plot
+import numpy as np
+import sympy as sym       #Lib for Symbolic Math
+from matplotlib import pyplot
+x_cordinate = np.linspace(-15,15,100)
+pyplot.plot(x_cordinate,function(x_cordinate))
+pyplot.plot(2,function(2),'ro')
+pyplot.show()
+
