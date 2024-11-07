@@ -1,0 +1,42 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+import keras
+from keras.models import Sequential
+from keras.layers import Dense
+
+data = pd.read_csv("Churn_Modelling.csv")
+data.head()
+
+data.dtypes
+
+X = data.drop(columns=['Exited'])  
+y = data['Exited']  # Target variable
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+numeric_features = X_train.select_dtypes(include=['float64', 'int64']).columns
+non_numeric_features = X_train.select_dtypes(include=['object']).columns
+numeric_transformer = StandardScaler()
+non_numeric_transformer = Pipeline(steps=[('onehot', OneHotEncoder(handle_unknown='ignore'))])
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numeric_transformer, numeric_features),
+        ('non_num', non_numeric_transformer, non_numeric_features)
+    ])
+X_train_preprocessed = preprocessor.fit_transform(X_train)
+X_test_preprocessed = preprocessor.transform(X_test)
+X_train_preprocessed = X_train_preprocessed.toarray()
+X_test_preprocessed = X_test_preprocessed.toarray()
+
+model = Sequential()
+model.add(Dense(units=64, activation='relu', input_dim=X_train_preprocessed.shape[1]))
+model.add(Dense(units=32, activation='relu'))
+model.add(Dense(units=1, activation='sigmoid'))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train_preprocessed, y_train, epochs=5, batch_size=32, validation_split=0.3)
+
+loss, accuracy = model.evaluate(X_test_preprocessed, y_test)
+print(f"Test Loss: {loss}, Test Accuracy: {accuracy}")
+
